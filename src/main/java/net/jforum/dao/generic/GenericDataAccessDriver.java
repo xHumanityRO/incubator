@@ -54,6 +54,7 @@ import net.jforum.dao.ForumDAO;
 import net.jforum.dao.GroupDAO;
 import net.jforum.dao.GroupSecurityDAO;
 import net.jforum.dao.KarmaDAO;
+import net.jforum.dao.LikeDAO;
 import net.jforum.dao.LuceneDAO;
 import net.jforum.dao.MailIntegrationDAO;
 import net.jforum.dao.ModerationDAO;
@@ -88,6 +89,7 @@ public class GenericDataAccessDriver extends DataAccessDriver
 	private static PrivateMessageDAO privateMessageDao = new GenericPrivateMessageDAO();
 	private static UserSessionDAO userSessionDao = new GenericUserSessionDAO();
 	private static KarmaDAO karmaDao = new GenericKarmaDAO();
+	private static LikeDAO likeDao = new GenericLikeDAO();
 	private static BookmarkDAO bookmarkDao = new GenericBookmarkDAO();
 	private static AttachmentDAO attachmentDao = new GenericAttachmentDAO();
 	private static ModerationDAO moderationDao = new GenericModerationDAO();
@@ -221,6 +223,14 @@ public class GenericDataAccessDriver extends DataAccessDriver
 	@Override public KarmaDAO newKarmaDAO()
 	{
 		return karmaDao;
+	}
+
+	/** 
+	 * @see net.jforum.dao.DataAccessDriver#newLikeDAO()
+	 */
+	@Override public LikeDAO newLikeDAO()
+	{
+		return likeDao;
 	}
 
 	/** 

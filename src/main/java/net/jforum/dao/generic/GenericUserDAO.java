@@ -51,11 +51,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import net.jforum.JForumExecutionContext;
 import net.jforum.dao.DataAccessDriver;
 import net.jforum.dao.UserDAO;
 import net.jforum.entities.Group;
 import net.jforum.entities.KarmaStatus;
+import net.jforum.entities.ReputationStatus;
 import net.jforum.entities.User;
 import net.jforum.exceptions.DatabaseException;
 import net.jforum.exceptions.ForumException;
@@ -70,6 +73,9 @@ import net.jforum.util.preferences.SystemGlobals;
  */
 public class GenericUserDAO extends AutoKeys implements UserDAO
 {
+	
+	private static final Logger LOGGER = Logger.getLogger(GenericUserDAO.class);
+
 	private static LoginAuthenticator loginAuthenticator;
 
 	public GenericUserDAO()
@@ -230,6 +236,7 @@ public class GenericUserDAO extends AutoKeys implements UserDAO
 		user.setSkype(rs.getString("user_skype"));
 		user.setActive(rs.getInt("user_active"));
 		user.setKarma(new KarmaStatus(user.getId(), rs.getDouble("user_karma")));
+		user.setReputation(new ReputationStatus(user.getId(), rs.getDouble("user_reputation")));
 		user.setNotifyPrivateMessagesEnabled(rs.getInt("user_notify_pm") == 1);
 		user.setDeleted(rs.getInt("deleted"));
 		user.setNotifyAlways(rs.getInt("user_notify_always") == 1);
@@ -540,6 +547,8 @@ public class GenericUserDAO extends AutoKeys implements UserDAO
 	{
 		List<User> list = new ArrayList<User>();
 
+		LOGGER.info("GenericUserDao.processSelectAll");
+		
 		while (rs.next()) {
 			User user = new User();
 
@@ -1039,6 +1048,29 @@ public class GenericUserDAO extends AutoKeys implements UserDAO
 
 			// Load Karma
 			DataAccessDriver.getInstance().newKarmaDAO().getUserTotalKarma(user);
+			result.add(user);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Load ReputationStatus from a list of users.
+	 * 
+	 * @param users
+	 *            List
+	 * @return List
+	 * @throws SQLException
+	 */
+	protected List<User> loadReputation(List<User> users)
+	{
+		List<User> result = new ArrayList<User>(users.size());
+
+		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
+			User user = iter.next();
+
+			// Load Reputation
+			DataAccessDriver.getInstance().newLikeDAO().getUserTotalReputation(user);
 			result.add(user);
 		}
 

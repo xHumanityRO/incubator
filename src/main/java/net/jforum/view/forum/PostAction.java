@@ -63,6 +63,7 @@ import net.jforum.dao.AttachmentDAO;
 import net.jforum.dao.DataAccessDriver;
 import net.jforum.dao.ForumDAO;
 import net.jforum.dao.KarmaDAO;
+import net.jforum.dao.LikeDAO;
 import net.jforum.dao.PollDAO;
 import net.jforum.dao.PostDAO;
 import net.jforum.dao.TopicDAO;
@@ -76,6 +77,7 @@ import net.jforum.entities.Poll;
 import net.jforum.entities.PollChanges;
 import net.jforum.entities.Post;
 import net.jforum.entities.QuotaLimit;
+import net.jforum.entities.ReputationStatus;
 import net.jforum.entities.Topic;
 import net.jforum.entities.User;
 import net.jforum.entities.UserSession;
@@ -195,9 +197,11 @@ public class PostAction extends Command
 
 		boolean karmaEnabled = SecurityRepository.canAccess(SecurityConstants.PERM_KARMA_ENABLED);
 		Map<Integer, Integer> userVotes = new ConcurrentHashMap<Integer, Integer>();
+		Map<Integer, Integer> userLikeVotes = new ConcurrentHashMap<Integer, Integer>();
 
 		if (logged && karmaEnabled) {
 			userVotes = DataAccessDriver.getInstance().newKarmaDAO().getUserVotes(topic.getId(), us.getUserId());
+			userLikeVotes = DataAccessDriver.getInstance().newLikeDAO().getUserVotes(topic.getId(), us.getUserId());
 		}
 
         Category category = ForumRepository.getCategory(forum.getCategoryId());
@@ -208,6 +212,7 @@ public class PostAction extends Command
 		this.context.put("thumbShowBox", SystemGlobals.getBoolValue(ConfigKeys.ATTACHMENTS_IMAGES_THUMB_BOX_SHOW));
 		this.context.put("am", new AttachmentCommon(this.request, topic.getForumId()));
 		this.context.put("karmaVotes", userVotes);
+		this.context.put("likeVotes", userLikeVotes);
 		this.context.put("canRemove", pc.canAccess(SecurityConstants.PERM_MODERATION_POST_REMOVE));
 		this.context.put("moderatorCanEdit", moderatorCanEdit);
 		this.context.put("editAfterReply", SystemGlobals.getBoolValue(ConfigKeys.POSTS_EDIT_AFTER_REPLY));
@@ -221,6 +226,8 @@ public class PostAction extends Command
 		this.context.put("forum", forum);
 		this.context.put("karmaMin", Integer.valueOf(SystemGlobals.getValue(ConfigKeys.KARMA_MIN_POINTS)));
 		this.context.put("karmaMax", Integer.valueOf(SystemGlobals.getValue(ConfigKeys.KARMA_MAX_POINTS)));
+		this.context.put("likeMin", Integer.valueOf(SystemGlobals.getValue(ConfigKeys.LIKE_MIN_POINTS)));
+		this.context.put("likeMax", Integer.valueOf(SystemGlobals.getValue(ConfigKeys.LIKE_MAX_POINTS)));
 		this.context.put("avatarAllowExternalUrl", SystemGlobals.getBoolValue(ConfigKeys.AVATAR_ALLOW_EXTERNAL_URL));
 		this.context.put("avatarPath", SystemGlobals.getValue(ConfigKeys.AVATAR_IMAGE_DIR));
 		this.context.put("moderationLoggingEnabled", SystemGlobals.getBoolValue(ConfigKeys.MODERATION_LOGGING_ENABLED));
@@ -228,6 +235,7 @@ public class PostAction extends Command
 
 		this.context.put("showAvatar", SystemGlobals.getBoolValue(ConfigKeys.AVATAR_SHOW));
 		this.context.put("showKarma", SystemGlobals.getBoolValue(ConfigKeys.KARMA_SHOW));
+		this.context.put("showLike", SystemGlobals.getBoolValue(ConfigKeys.LIKE_SHOW));
 		this.context.put("showIP", SystemGlobals.getBoolValue(ConfigKeys.IP_SHOW));
 		this.context.put("showOnline", SystemGlobals.getBoolValue(ConfigKeys.ONLINE_SHOW));
 
@@ -395,6 +403,8 @@ public class PostAction extends Command
 		this.context.put("pageTitle", I18n.getMessage("PostShow.userPosts") + " " + user.getUsername());
 		this.context.put("karmaMin", Integer.valueOf(SystemGlobals.getValue(ConfigKeys.KARMA_MIN_POINTS)));
 		this.context.put("karmaMax", Integer.valueOf(SystemGlobals.getValue(ConfigKeys.KARMA_MAX_POINTS)));
+		this.context.put("likeMin", Integer.valueOf(SystemGlobals.getValue(ConfigKeys.LIKE_MIN_POINTS)));
+		this.context.put("likeMax", Integer.valueOf(SystemGlobals.getValue(ConfigKeys.LIKE_MAX_POINTS)));
 
 		ViewCommon.contextToPagination(start, totalMessages, count);
 	}
@@ -1164,6 +1174,7 @@ public class PostAction extends Command
 			// Save the remaining stuff
 			post.setModerate(moderate);
 			post.setKarma(new KarmaStatus());
+			post.setReputation(new ReputationStatus());
 			int postId = postDao.addNew(post);
 
 			if (newTopic) {
@@ -1288,6 +1299,11 @@ public class PostAction extends Command
 		KarmaDAO karmaDao = DataAccessDriver.getInstance().newKarmaDAO();
 		karmaDao.deletePostKarma(post.getId());
 		karmaDao.updateUserKarma(post.getUserId());
+
+		// Like
+		LikeDAO likeDao = DataAccessDriver.getInstance().newLikeDAO();
+		likeDao.deletePostLike(post.getId());
+		likeDao.updateUserReputation(post.getUserId());
 
 		// Attachments
 		new AttachmentCommon(this.request, post.getForumId()).deleteAttachments(post.getId(), post.getForumId());

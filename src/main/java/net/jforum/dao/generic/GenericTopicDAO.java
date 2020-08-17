@@ -62,6 +62,7 @@ import net.jforum.dao.PollDAO;
 import net.jforum.dao.PostDAO;
 import net.jforum.dao.TopicDAO;
 import net.jforum.entities.KarmaStatus;
+import net.jforum.entities.ReputationStatus;
 import net.jforum.entities.Topic;
 import net.jforum.entities.User;
 import net.jforum.exceptions.DatabaseException;
@@ -1217,6 +1218,7 @@ public class GenericTopicDAO extends AutoKeys implements TopicDAO
 				user.setId(rs.getInt(USER_ID));
 				user.setUsername(rs.getString("username"));
 				user.setKarma(new KarmaStatus(user.getId(), rs.getDouble("user_karma")));
+				user.setReputation(new ReputationStatus(user.getId(), rs.getDouble("user_reputation")));
 				user.setAvatar(rs.getString("user_avatar"));
 				user.setAvatarEnabled(rs.getInt("user_allowavatar") == 1);
 				user.setRegistrationDate(new Date(rs.getTimestamp("user_regdate").getTime()));

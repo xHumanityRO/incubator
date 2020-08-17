@@ -25,10 +25,11 @@
 	</td>
 	<#if showKarma && karmaEnabled && post.userId != session.userId && logged>
 		<td align="right">
-		<#if !karmaVotes.containsKey(post.id)>
-			<script type="text/javascript">karmaPointsCombo(${post.id})</script>
+		<#if !likeVotes.containsKey(post.id)>
+			<script type="text/javascript">likeImage(${post.id})</script>
+			<script type="text/javascript">dislikeImage(${post.id})</script>
 		<#else>
-			<span class="gensmall">${I18n.getMessage("Karma.yourRate")}: ${karmaVotes.get(post.id)}</span>
+			<span class="gensmall">${I18n.getMessage("Like.yourRate")}: ${likeVotes.get(post.id)}</span>
 		</#if>
 		</td>
 	</#if>

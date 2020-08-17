@@ -610,6 +610,7 @@ public class UserAction extends Command
 			this.context.put("avatarPath", SystemGlobals.getValue(ConfigKeys.AVATAR_IMAGE_DIR));
 			this.context.put("showAvatar", SystemGlobals.getBoolValue(ConfigKeys.AVATAR_SHOW));
 			this.context.put("showKarma", SystemGlobals.getBoolValue(ConfigKeys.KARMA_SHOW));
+			this.context.put("showLike", SystemGlobals.getBoolValue(ConfigKeys.LIKE_SHOW));
 
 			int loggedId = SessionFacade.getUserSession().getUserId();
 			int count = 0;

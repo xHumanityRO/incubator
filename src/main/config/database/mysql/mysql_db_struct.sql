@@ -308,6 +308,7 @@ CREATE TABLE jforum_users (
   deleted TINYINT(1) DEFAULT NULL,
   security_hash VARCHAR(32),
   user_karma DOUBLE,
+  user_reputation DOUBLE,
   user_authhash VARCHAR(32),
   user_twitter VARCHAR(50) DEFAULT NULL,
   PRIMARY KEY (user_id)
@@ -537,5 +538,23 @@ CREATE TABLE jforum_api (
 DROP TABLE IF EXISTS jforum_spam;
 CREATE TABLE jforum_spam (
   pattern VARCHAR(100) NOT NULL
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table 'jforum_karma'
+--
+DROP TABLE IF EXISTS jforum_like;
+CREATE TABLE jforum_like (
+  like_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  post_id INT NOT NULL,
+  topic_id INT NOT NULL,
+  post_user_id INT NOT NULL,
+  from_user_id INT NOT NULL,
+  points INT NOT NULL,
+  rate_date DATETIME NULL,
+  KEY (post_id),
+  KEY (topic_id),
+  KEY (post_user_id),
+  KEY (from_user_id)
 ) ENGINE=InnoDB;
 

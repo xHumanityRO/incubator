@@ -13,19 +13,16 @@
 		<div class="postinfo">
 			<div class="subject"><b><#if topic.type == TOPIC_WIKI>${I18n.getMessage("PostShow.wiki")} </#if>${I18n.getMessage("PostShow.subject")}:</b> <a name="p${post.id}">${post.subject?default("")}</a></div>
 			<div class="action">
-				<#if showKarma && karmaEnabled>
-					<script type="text/javascript">writeStars(${post.karma.karmaPoints}, ${post.id});</script>
-				</#if>
 
 				<#if topic.status != STATUS_LOCKED && !readonly && topic.type != TOPIC_WIKI>
 					<a href="${JForumContext.encodeURL("/posts/quote/${start}/${post.id}")}" rel="nofollow" class="icon_quote"><img src="${contextPath}/images/transp.gif" alt="" /></a>
 				</#if>
 				<#if topic.status != STATUS_LOCKED && !readonly && topic.type != TOPIC_WIKI>
-					<a href="${JForumContext.encodeURL("/${moduleName}/like/${start}/${post.id}")}" id="like${post.id}" onclick="return confirmLike(${post.id});"><img src="${contextPath}/templates/${templateName}/images/like.png" alt="[Like]" /></a>  
+					<a href="${JForumContext.encodeURL("/${moduleName}/like/${start}/${post.id}")}" id="like${post.id}"><img src="${contextPath}/templates/${templateName}/images/like.png" alt="[Like]" /></a>${post.reputation.totalLikes}  
 				</#if>
 
 				<#if topic.status != STATUS_LOCKED && !readonly && topic.type != TOPIC_WIKI>
-					<a href="${JForumContext.encodeURL("/${moduleName}/dislike/${start}/${post.id}")}" id="dislike${post.id}" onclick="return confirmDislike(${post.id});"><img src="${contextPath}/templates/${templateName}/images/dislike.png" alt="[Like]" /></a>  
+					<a href="${JForumContext.encodeURL("/${moduleName}/dislike/${start}/${post.id}")}" id="dislike${post.id}"><img src="${contextPath}/templates/${templateName}/images/dislike.png" alt="[Dislike]" /></a>${post.reputation.totalDislikes}  
 				</#if>
 
 				<#if canEditCurrentMessage>

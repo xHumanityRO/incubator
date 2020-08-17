@@ -68,6 +68,11 @@ public final class TemplateKeys
 	public static final String KARMA_SEARCH_BYPERIOD = "karma.search.byperiod";
 	public static final String KARMA_SEARCH_BYMONTH = "karma.search.bymonth";
 
+	public static final String LIKE_ERROR = "like.error";
+	public static final String LIKE_LIST = "like.list";
+	public static final String LIKE_SEARCH_BYPERIOD = "like.search.byperiod";
+	public static final String LIKE_SEARCH_BYMONTH = "like.search.bymonth";
+
 	public static final String MODERATION_MOVE_TOPICS = "moderation.move.topics";
 	public static final String MODERATION_DONE = "moderation.done";
 	public static final String MODERATION_DENIED = "moderation.denied";
@@ -129,6 +134,7 @@ public final class TemplateKeys
 	public static final String USER_RECOVERPASSWORD_VALIDATE = "user.recoverpassword.validate";
 	public static final String USER_LIST = "user.list";
 	public static final String USER_SEARCH_KARMA = "user.search.karma";
+	public static final String USER_SEARCH_REPUTATION = "user.search.reputation";
 	public static final String USER_NOT_FOUND = "user.not.found";
 
 	public static final String VIEWCOMMON_LOGIN = "viewcommon.login";

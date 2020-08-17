@@ -112,6 +112,8 @@ public class GenericSummaryDAO extends AutoKeys implements SummaryDAO
 
 		post.setKarma(DataAccessDriver.getInstance().newKarmaDAO().getPostKarma(post.getId()));
 
+		post.setReputation(DataAccessDriver.getInstance().newLikeDAO().getPostReputation(post.getId()));
+
 		LOGGER.debug("Add to Weekly Summary: post.id="+ post.getId() +" post.subject="+ post.getSubject());
 		
 		return post;

@@ -290,6 +290,10 @@ public final class ConfigKeys
 	public static final String KARMA_MIN_POINTS = "karma.min.points";
 	public static final String KARMA_MAX_POINTS = "karma.max.points";
 
+	public static final String LIKE_SHOW = "like.show";
+	public static final String LIKE_MIN_POINTS = "like.min.points";
+	public static final String LIKE_MAX_POINTS = "like.max.points";
+
 	public static final String IP_SHOW = "show.ip";
 	public static final String ONLINE_SHOW = "show.online.status";
 	public static final String AVATAR_SHOW = "show.avatar";

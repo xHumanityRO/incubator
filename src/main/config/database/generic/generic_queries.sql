@@ -53,13 +53,13 @@ UserModel.selectById = SELECT COUNT(pm.privmsgs_to_userid) AS private_messages, 
     GROUP BY pm.privmsgs_to_userid
 
 UserModel.selectAll = SELECT user_email, user_id, user_posts, user_regdate, username, deleted, user_karma, user_from, \
-    user_website, user_viewemail FROM jforum_users ORDER BY user_id
+    user_website, user_viewemail, user_reputation FROM jforum_users ORDER BY user_id
 
-UserModel.selectAllByLimit = SELECT user_email, user_id, user_posts, user_regdate, username, deleted, user_karma, user_from, user_website, user_viewemail \
+UserModel.selectAllByLimit = SELECT user_email, user_id, user_posts, user_regdate, username, deleted, user_karma, user_from, user_website, user_viewemail, user_reputation \
     FROM jforum_users ORDER BY user_id LIMIT ?, ?
 
 UserModel.selectAllByGroup = SELECT user_email, u.user_id, user_posts, user_regdate, username, deleted, user_karma, user_from, \
-    user_website, user_viewemail \
+    user_website, user_viewemail, user_reputation \
     FROM jforum_users u, jforum_user_groups ug \
     WHERE u.user_id = ug.user_id \
     AND ug.group_id = ? \
@@ -380,7 +380,7 @@ TopicModel.selectAllByForum = SELECT t.*, p.user_id AS last_user_id, p.post_time
 
 TopicModel.topicPosters = SELECT user_id, username, user_karma, user_avatar, user_allowavatar, user_regdate, user_posts, \
     user_icq, user_from, user_email, rank_id, user_sig, user_attachsig, user_viewemail, user_skype, user_website, \
-    user_sig, user_twitter \
+    user_sig, user_twitter, user_reputation \
     FROM jforum_users \
     WHERE user_id IN (:ids:)
 
@@ -632,6 +632,33 @@ KarmaModel.getMostRatedUserByPeriod = SELECT u.user_id, u.username, SUM(points) 
       WHERE u.user_id = k.post_user_id \
       AND k.rate_date BETWEEN ? AND ? \
       GROUP BY u.user_id, u.username, user_karma
+
+# ###########
+# LikeModel
+# ###########
+LikeModel.add = INSERT INTO jforum_like (post_id, post_user_id, from_user_id, points, topic_id, rate_date) VALUES (?, ?, ?, ?, ?, ?)
+LikeModel.update = UPDATE jforum_like SET points = ? WHERE like_id = ?
+LikeModel.getUserReputation = SELECT user_reputation FROM jforum_users WHERE user_id = ?
+LikeModel.updateUserReputation = UPDATE jforum_users SET user_reputation = ? WHERE user_id = ?
+LikeModel.getPostReputation = SELECT SUM((CASE WHEN points > 0 THEN points ELSE 0 END)) AS likes, SUM((CASE WHEN points < 0 THEN points ELSE 0 END)) AS dislikes FROM jforum_like WHERE post_id = ?
+LikeModel.deletePostLike = DELETE FROM jforum_like WHERE post_id = ?
+LikeModel.userCanAddLike = SELECT COUNT(1) FROM jforum_like WHERE post_id = ? AND from_user_id = ?
+
+LikeModel.getUserReputationPoints = SELECT SUM(points) AS points, COUNT(1) AS votes, from_user_id \
+    FROM jforum_like WHERE post_user_id = ? GROUP BY from_user_id
+LikeModel.getUserVotes = SELECT points, post_id FROM jforum_like WHERE topic_id = ? AND from_user_id = ?    
+
+###
+LikeModel.getUserGivenVotes = SELECT COUNT(post_id) AS votes FROM jforum_like WHERE from_user_id = ?
+LikeModel.getUserTotalVotes = SELECT SUM(points) AS points, COUNT(post_id) AS votes FROM jforum_like WHERE post_user_id = ?
+
+LikeModel.getMostRatedUserByPeriod = SELECT u.user_id, u.username, SUM(points) AS total, \
+      COUNT(post_user_id) AS votes_received, user_reputation, \
+      -1 AS given \
+      FROM jforum_users u, jforum_like k \
+      WHERE u.user_id = k.post_user_id \
+      AND k.rate_date BETWEEN ? AND ? \
+      GROUP BY u.user_id, u.username, user_like
 
 # ##############
 # BookmarkModel

@@ -198,6 +198,8 @@ public abstract class DataAccessDriver
 	 */
 	public abstract KarmaDAO newKarmaDAO();
 
+	public abstract LikeDAO newLikeDAO();
+
 	/**
 	 * Gets a {@link net.jforum.dao.BookmarkDAO} instance
 	 * 

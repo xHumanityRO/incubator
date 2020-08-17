@@ -125,6 +125,8 @@ public class GenericPostDAO extends AutoKeys implements net.jforum.dao.PostDAO
 
 		post.setKarma(DataAccessDriver.getInstance().newKarmaDAO().getPostKarma(post.getId()));
 
+		post.setReputation(DataAccessDriver.getInstance().newLikeDAO().getPostReputation(post.getId()));
+
 		return post;
 	}
 

@@ -108,6 +108,7 @@ public class User implements Serializable
 	private List<Group> groupsList;
 	private int privateMessagesCount;
 	private KarmaStatus karma;
+	private ReputationStatus reputation;
 	private int active;
 	private String activationKey;
 	private int deleted;
@@ -745,6 +746,14 @@ public class User implements Serializable
 		return this.karma;
 	}
 	
+	public ReputationStatus getReputation() {
+		return reputation;
+	}
+
+	public void setReputation(ReputationStatus reputation) {
+		this.reputation = reputation;
+	}
+
 	/**
 	 * Is the user online?
 	 * 

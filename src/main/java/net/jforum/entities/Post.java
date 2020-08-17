@@ -72,6 +72,7 @@ public class Post implements Serializable
 	private String userIp;
 	private boolean canEdit;
 	private KarmaStatus karma;
+	private ReputationStatus reputation;
 	private boolean hasAttachments;
 	private boolean moderate;
 	private int topicType;
@@ -107,6 +108,7 @@ public class Post implements Serializable
 		this.userId = post.getUserId();
 		this.userIp = post.getUserIp();
 		this.karma = (new KarmaStatus(post.getKarma()));
+		this.reputation = (new ReputationStatus(post.getReputation()));
 		this.moderate = post.isModerationNeeded();
 		this.hasAttachments = post.hasAttachments();
 	}
@@ -136,6 +138,14 @@ public class Post implements Serializable
 		this.karma = karma;
 	}
 	
+	public ReputationStatus getReputation() {
+		return reputation;
+	}
+
+	public void setReputation(ReputationStatus reputation) {
+		this.reputation = reputation;
+	}
+
 	/**
 	 * Checks if the BB code is enabled
 	 * 

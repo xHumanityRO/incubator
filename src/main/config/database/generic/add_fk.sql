@@ -41,6 +41,11 @@ ALTER TABLE jforum_karma ADD FOREIGN KEY (topic_id) REFERENCES jforum_topics(top
 ALTER TABLE jforum_karma ADD FOREIGN KEY (post_user_id) REFERENCES jforum_users(user_id);
 ALTER TABLE jforum_karma ADD FOREIGN KEY (from_user_id) REFERENCES jforum_users(user_id);
 
+ALTER TABLE jforum_like ADD FOREIGN KEY (post_id) REFERENCES jforum_posts(post_id);
+ALTER TABLE jforum_like ADD FOREIGN KEY (topic_id) REFERENCES jforum_topics(topic_id);
+ALTER TABLE jforum_like ADD FOREIGN KEY (post_user_id) REFERENCES jforum_users(user_id);
+ALTER TABLE jforum_like ADD FOREIGN KEY (from_user_id) REFERENCES jforum_users(user_id);
+
 ALTER TABLE jforum_bookmarks ADD FOREIGN KEY (user_id) REFERENCES jforum_users(user_id);
 
 ALTER TABLE jforum_extensions ADD FOREIGN KEY (extension_group_id) REFERENCES jforum_extension_groups(extension_group_id);
