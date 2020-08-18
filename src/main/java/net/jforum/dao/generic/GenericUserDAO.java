@@ -561,6 +561,9 @@ public class GenericUserDAO extends AutoKeys implements UserDAO
 			KarmaStatus karma = new KarmaStatus();
 			karma.setKarmaPoints(rs.getInt("user_karma"));
 			user.setKarma(karma);
+			ReputationStatus repStatus = new ReputationStatus();
+			repStatus.setReputationPoints(rs.getInt("user_reputation"));
+			user.setReputation(repStatus);
 			user.setFrom(rs.getString("user_from"));
 			user.setWebSite(rs.getString("user_website"));
 			user.setViewEmailEnabled(rs.getInt("user_viewemail") == 1);
