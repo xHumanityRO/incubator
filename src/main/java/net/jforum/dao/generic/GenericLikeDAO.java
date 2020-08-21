@@ -211,7 +211,7 @@ public class GenericLikeDAO implements net.jforum.dao.LikeDAO
 			if (resultSet.next()) {
 				reputation.setTotalLikes(resultSet.getInt(1));
 				reputation.setTotalDislikes(resultSet.getInt(2));
-				LOGGER.info("Updated reputation: "+ reputation.getTotalLikes() + ", " + reputation.getTotalDislikes());
+				//LOGGER.info("Updated reputation: "+ reputation.getTotalLikes() + ", " + reputation.getTotalDislikes());
 			}
 
 			return reputation;

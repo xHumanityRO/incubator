@@ -52,7 +52,12 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
+import org.telegram.telegrambots.ApiContextInitializer;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.generics.BotSession;
 
+import net.jforum.bot.XHumanityTelegramBot;
 import net.jforum.util.log.LoggerHelper;
 import net.jforum.util.preferences.SystemGlobals;
 import net.jforum.util.stats.Stats;
@@ -64,7 +69,9 @@ import net.jforum.util.stats.Stats;
 public class ContextListener implements ServletContextListener {
 
     private static final Logger LOGGER = Logger.getLogger(ContextListener.class);
-    /* (non-Javadoc)
+	private BotSession botSession = null;
+	
+	/* (non-Javadoc)
      * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
      */
     @Override public void contextInitialized (ServletContextEvent sce) {
@@ -87,12 +94,30 @@ public class ContextListener implements ServletContextListener {
 		// initialize EventBus
 		Stats.init();
         LOGGER.info(application.getContextPath() + " initialized in " + containerInfo);
+        startTelegramBot();
     }
+
+	private void startTelegramBot() {
+		LOGGER.info("Telegram Bot starting...");
+		ApiContextInitializer.init();
+
+        TelegramBotsApi botsApi = new TelegramBotsApi();
+
+        try {
+        	botSession = botsApi.registerBot(new XHumanityTelegramBot());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+	}
 
     /* (non-Javadoc)
      * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
      */
     @Override public void contextDestroyed (ServletContextEvent sce) {
+    	if (botSession != null) {
+    		botSession.stop();
+    		LOGGER.info("Telegram Bot stopped.");
+    	}
 		// stop EventBus
         Stats.stop();
 

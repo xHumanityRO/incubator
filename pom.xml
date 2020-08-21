@@ -290,6 +290,11 @@
 			<artifactId>prettytime</artifactId>
 			<version>4.0.5.Final</version>
 		</dependency>
+		<dependency>
+			<groupId>org.telegram</groupId>
+			<artifactId>telegrambots</artifactId>
+			<version>4.9.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
