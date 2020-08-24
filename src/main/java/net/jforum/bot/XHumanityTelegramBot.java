@@ -9,6 +9,7 @@ import java.util.List;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Contact;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
@@ -16,112 +17,146 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import net.jforum.dao.DataAccessDriver;
+import net.jforum.dao.TelegramUserDAO;
+import net.jforum.entities.TelegramUser;
+
 public class XHumanityTelegramBot extends TelegramLongPollingBot {
+	
+	private static final String BOT_NAME = "xHumanityBot";
+	private static final String TOKEN = "1176331978:AAFWKL0u5xWXuWxEUnkoewEiDdl1Ub9g2ns";
+
+	private final TelegramUserDAO telegramUserDao = DataAccessDriver.getInstance().newTelegramUserDAO();
 	
 	@Override
 	public void onUpdateReceived(Update update) {
-		if (update.hasMessage() && update.getMessage().hasContact()) {
-			long chatId = update.getMessage().getChatId();
-			String userUsername = update.getMessage().getChat().getUserName();
-			String messageText = update.getMessage().getText();
+		if (update.hasMessage()) {
+			TelegramUser telegramUser = createUserIfNotExists(update.getMessage());
+		
+			if (update.getMessage().hasContact()) {
+				long chatId = update.getMessage().getChatId();
+				String userUsername = update.getMessage().getChat().getUserName();
+				String messageText = update.getMessage().getText();
 
-			Contact contact = update.getMessage().getContact();
-            long userId = contact.getUserID();
-			String userFirstName = contact.getFirstName();
-            String userLastName = contact.getLastName();
-			String phoneNumber = contact.getPhoneNumber();
-			logReceivedContact(userFirstName, userLastName, Long.toString(userId), phoneNumber);
-			
-			String answer = "/hide_keyboard";
-			SendMessage message = new SendMessage().setChatId(chatId).setText(answer);
-			try {
-				execute(message);
-		        logReceivedMessage(userFirstName, userLastName, Long.toString(userId), userUsername, messageText, answer);
-			} catch (TelegramApiException e) {
-				e.printStackTrace();
-			}
-		} else if (update.hasMessage() && update.getMessage().hasText()) { // // We check if the update has a message and the message has text
-			long chatId = update.getMessage().getChatId();
-            long userId = update.getMessage().getChat().getId();
-			String userFirstName = update.getMessage().getChat().getFirstName();
-            String userLastName = update.getMessage().getChat().getLastName();
-            String userUsername = update.getMessage().getChat().getUserName();
-			String messageText = update.getMessage().getText();
-			
-			if (messageText.equals("/start")) {
-				String answer = "Salut xHumanicus! Deocamdata nu stiu sa fac mare lucru, dar in curand ma voi inzestra cu capacitati noi. "
-						+ "Apasa /create_account pentru a-ti crea un cont pe forum\n"
-						+ "Si Pregateste-te de promovare! :)"; // update.getMessage().getText()
-				SendMessage message = new SendMessage() // Create a SendMessage object with mandatory fields
-						.setChatId(chatId).setText(answer);
+				Contact contact = update.getMessage().getContact();
+	            long userId = contact.getUserID();
+				String userFirstName = contact.getFirstName();
+	            String userLastName = contact.getLastName();
+				String phoneNumber = contact.getPhoneNumber();
+				logReceivedContact(userFirstName, userLastName, Long.toString(userId), phoneNumber);
+				telegramUser.setPhoneNumber(phoneNumber);
+				telegramUserDao.update(telegramUser);
+				
+				String answer = "/hide_keyboard";
+				SendMessage message = new SendMessage().setChatId(chatId).setText(answer);
 				try {
-					execute(message); // Call method to send the message
+					execute(message);
 			        logReceivedMessage(userFirstName, userLastName, Long.toString(userId), userUsername, messageText, answer);
 				} catch (TelegramApiException e) {
 					e.printStackTrace();
 				}
-			} else if (messageText.equals("/create_account")) {
-				String answer = "Please share your phone number to create an account to out Forum.";
-				SendMessage message = new SendMessage() // Create a message object object
-						.setChatId(chatId).setText(answer);
-				// Create ReplyKeyboardMarkup object
-				ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-				// Create the keyboard (list of keyboard rows)
-				List<KeyboardRow> keyboard = new ArrayList<>();
-				// Create a keyboard row
-				KeyboardRow row = new KeyboardRow();
-				// Set each button, you can also use KeyboardButton objects if you need
-				// something else than text
-				KeyboardButton requestContact = new KeyboardButton("Trimite numarul meu de tel");
-				requestContact.setRequestContact(true);
-				row.add(requestContact);
-				// Add the first row to the keyboard
-				keyboard.add(row);
-				// Set the keyboard to the markup
-				keyboardMarkup.setKeyboard(keyboard);
-				keyboardMarkup.setResizeKeyboard(true);
-				// Add it to the message
-				message.setReplyMarkup(keyboardMarkup);
-				try {
-					execute(message); // Sending our message object to user
-			        logReceivedMessage(userFirstName, userLastName, Long.toString(userId), userUsername, messageText, answer);
-				} catch (TelegramApiException e) {
-					e.printStackTrace();
+			} else if (update.getMessage().hasText()) { // // We check if the update has a message and the message has text
+				long chatId = update.getMessage().getChatId();
+	            long userId = update.getMessage().getChat().getId();
+				String userFirstName = update.getMessage().getChat().getFirstName();
+	            String userLastName = update.getMessage().getChat().getLastName();
+	            String userUsername = update.getMessage().getChat().getUserName();
+				String messageText = update.getMessage().getText();
+				
+				if (messageText.equals("/start")) {
+					String answer = "Salut xHumanicus! Deocamdata nu stiu sa fac mare lucru, dar in curand ma voi inzestra cu capacitati noi. "
+							+ "Apasa /create_account pentru a-ti crea un cont pe forum\n"
+							+ "Si pregateste-te de promovare! :)"; // update.getMessage().getText()
+					SendMessage message = new SendMessage() // Create a SendMessage object with mandatory fields
+							.setChatId(chatId).setText(answer);
+					try {
+						execute(message); // Call method to send the message
+				        logReceivedMessage(userFirstName, userLastName, Long.toString(userId), userUsername, messageText, answer);
+					} catch (TelegramApiException e) {
+						e.printStackTrace();
+					}
+				} else if (messageText.equals("/create_account")) {
+					String answer = "Please share your phone number to create an account on our Forum.";
+					SendMessage message = new SendMessage() // Create a message object object
+							.setChatId(chatId).setText(answer);
+					// Create ReplyKeyboardMarkup object
+					ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+					// Create the keyboard (list of keyboard rows)
+					List<KeyboardRow> keyboard = new ArrayList<>();
+					// Create a keyboard row
+					KeyboardRow row = new KeyboardRow();
+					// Set each button, you can also use KeyboardButton objects if you need
+					// something else than text
+					KeyboardButton requestContact = new KeyboardButton("Trimite numarul meu de tel");
+					requestContact.setRequestContact(true);
+					row.add(requestContact);
+					// Add the first row to the keyboard
+					keyboard.add(row);
+					// Set the keyboard to the markup
+					keyboardMarkup.setKeyboard(keyboard);
+					keyboardMarkup.setResizeKeyboard(true);
+					// Add it to the message
+					message.setReplyMarkup(keyboardMarkup);
+					try {
+						execute(message); // Sending our message object to user
+				        logReceivedMessage(userFirstName, userLastName, Long.toString(userId), userUsername, messageText, answer);
+					} catch (TelegramApiException e) {
+						e.printStackTrace();
+					}
+				} else if (messageText.equals("/hide_keyboard")) {
+					String answer = "Keyboard hidden";
+					SendMessage msg = new SendMessage().setChatId(chatId).setText(answer);
+					ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
+					msg.setReplyMarkup(keyboardMarkup);
+					try {
+						execute(msg); // Call method to hide the keyboard
+				        logReceivedMessage(userFirstName, userLastName, Long.toString(userId), userUsername, messageText, answer);
+					} catch (TelegramApiException e) {
+						e.printStackTrace();
+					}
+				} else {
+					// Unknown command
+					String answer = "Unknown command";
+					SendMessage message = new SendMessage() // Create a message object object
+							.setChatId(chatId).setText(answer);
+					try {
+						execute(message); // Sending our message object to user
+				        logReceivedMessage(userFirstName, userLastName, Long.toString(userId), userUsername, messageText, answer);
+					} catch (TelegramApiException e) {
+						e.printStackTrace();
+					}
 				}
-			} else if (messageText.equals("/hide_keyboard")) {
-				String answer = "Keyboard hidden";
-				SendMessage msg = new SendMessage().setChatId(chatId).setText(answer);
-				ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
-				msg.setReplyMarkup(keyboardMarkup);
-				try {
-					execute(msg); // Call method to hide the keyboard
-			        logReceivedMessage(userFirstName, userLastName, Long.toString(userId), userUsername, messageText, answer);
-				} catch (TelegramApiException e) {
-					e.printStackTrace();
-				}
-			} else {
-				// Unknown command
-				String answer = "Unknown command";
-				SendMessage message = new SendMessage() // Create a message object object
-						.setChatId(chatId).setText(answer);
-				try {
-					execute(message); // Sending our message object to user
-			        logReceivedMessage(userFirstName, userLastName, Long.toString(userId), userUsername, messageText, answer);
-				} catch (TelegramApiException e) {
-					e.printStackTrace();
-				}
-			}
+			}			
 		}
+	}
+
+	private TelegramUser createUserIfNotExists(Message message) {
+        long userId = message.getChat().getId();
+        TelegramUser telegramUser = telegramUserDao.selectByUserId(userId);
+		if (telegramUser.getUserId() == 0) {
+			long chatId = message.getChatId();
+			String firstName = message.getChat().getFirstName();
+	        String lastName = message.getChat().getLastName();
+	        String username = message.getChat().getUserName();
+	        telegramUser.setChatId(chatId);
+	        telegramUser.setUserId(userId);
+	        telegramUser.setUsername(username);
+	        telegramUser.setFirstName(firstName);
+	        telegramUser.setLastName(lastName);
+
+			telegramUserDao.addNew(telegramUser);
+		}
+		return telegramUser;
 	}
 
 	@Override
 	public String getBotUsername() {
-		return "xHumanityBot";
+		return BOT_NAME;
 	}
 
 	@Override
 	public String getBotToken() {
-		return "1176331978:AAFWKL0u5xWXuWxEUnkoewEiDdl1Ub9g2ns";
+		return TOKEN;
 	}
 	
 	private void logReceivedMessage(String firstName, String lastName, String userId, String userName, String txt, String botAnswer) {

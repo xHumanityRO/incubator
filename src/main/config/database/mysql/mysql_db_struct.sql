@@ -558,3 +558,17 @@ CREATE TABLE jforum_like (
   KEY (from_user_id)
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS jforum_telegram_users;
+CREATE TABLE jforum_telegram_users (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id BIGINT NOT NULL DEFAULT 0,
+  chat_id BIGINT NOT NULL DEFAULT 0,
+  forum_user_id INT NOT NULL DEFAULT 0,
+  username VARCHAR(50) DEFAULT '',
+  first_name VARCHAR(50) NOT NULL DEFAULT '',
+  last_name VARCHAR(50) NOT NULL DEFAULT '',
+  phone_number VARCHAR(20) DEFAULT '',
+  user_lastvisit DATETIME DEFAULT NULL,
+  user_regdate DATETIME DEFAULT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB;

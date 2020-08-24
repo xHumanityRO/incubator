@@ -276,4 +276,6 @@ public abstract class DataAccessDriver
      * @return <code>net.jforum.dao.SpamDAO</code> instance.
      */
 	public abstract SpamDAO newSpamDAO();
+
+	public abstract TelegramUserDAO newTelegramUserDAO();
 }

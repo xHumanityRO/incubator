@@ -61,10 +61,15 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.owasp.csrfguard.CsrfGuard;
 import org.quartz.SchedulerException;
+import org.telegram.telegrambots.ApiContextInitializer;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.generics.BotSession;
 
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import net.jforum.api.integration.mail.pop.POPJobStarter;
+import net.jforum.bot.XHumanityTelegramBot;
 import net.jforum.context.JForumContext;
 import net.jforum.context.RequestContext;
 import net.jforum.context.ResponseContext;
@@ -103,6 +108,8 @@ public class JForum extends JForumBaseServlet
     private static final Logger LOGGER = Logger.getLogger(JForum.class);
 
     private static final long serialVersionUID = 7160936607198716279L;
+
+	private BotSession botSession = null;
 
     /**
      * @see javax.servlet.Servlet#init(javax.servlet.ServletConfig)
@@ -352,11 +359,26 @@ public class JForum extends JForumBaseServlet
             ConfigLoader.startPop3Integration();
             // BB Code
             BBCodeRepository.setBBCollection(new BBCodeHandler().parse());
+            
+            startTelegramBot();
         }
         catch (Exception e) {
             throw new ForumStartupException("Error while starting JForum", e);
         }
     }	
+
+	private void startTelegramBot() {
+		LOGGER.info("Telegram Bot starting...");
+		ApiContextInitializer.init();
+
+        TelegramBotsApi botsApi = new TelegramBotsApi();
+
+        try {
+        	botSession = botsApi.registerBot(new XHumanityTelegramBot());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+	}
 
     private boolean shouldBan(final String ip)
     {
@@ -383,6 +405,12 @@ public class JForum extends JForumBaseServlet
     public void destroy() 
     {
         super.destroy();
+        
+        if (botSession != null) {
+    		botSession.stop();
+    		LOGGER.info("Telegram Bot stopped.");
+    	}
+        
         LOGGER.info("Destroying JForum...");
 
         // stop Scheduler

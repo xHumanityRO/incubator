@@ -66,6 +66,7 @@ import net.jforum.dao.RankingDAO;
 import net.jforum.dao.SmilieDAO;
 import net.jforum.dao.SpamDAO;
 import net.jforum.dao.SummaryDAO;
+import net.jforum.dao.TelegramUserDAO;
 import net.jforum.dao.TopicDAO;
 import net.jforum.dao.TreeGroupDAO;
 import net.jforum.dao.UserDAO;
@@ -83,6 +84,7 @@ public class GenericDataAccessDriver extends DataAccessDriver
 	private static RankingDAO rankingDao = new GenericRankingDAO();
 	private static TopicDAO topicDao = new GenericTopicDAO();
 	private static UserDAO userDao = new GenericUserDAO();
+	private static TelegramUserDAO telegramUserDao = new GenericTelegramUserDAO();
 	private static TreeGroupDAO treeGroupDao = new GenericTreeGroupDAO();
 	private static SmilieDAO smilieDao = new GenericSmilieDAO();
 	private static GroupSecurityDAO groupSecurityDao = new GenericGroupSecurityDAO();
@@ -159,6 +161,11 @@ public class GenericDataAccessDriver extends DataAccessDriver
 	@Override public UserDAO newUserDAO() 
 	{
 		return userDao;
+	}
+
+	@Override public TelegramUserDAO newTelegramUserDAO() 
+	{
+		return telegramUserDao;
 	}
 
 	/**

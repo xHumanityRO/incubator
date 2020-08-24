@@ -892,3 +892,21 @@ Spam.selectAll = SELECT pattern FROM jforum_spam ORDER BY pattern ASC
 Spam.create = INSERT INTO jforum_spam (pattern) values (?)
 Spam.delete = DELETE FROM jforum_spam WHERE pattern = ?
 
+############
+# TelegramBotModel
+############
+TelegramUserModel.userIdExist = SELECT 1 FROM jforum_telegram_users WHERE user_id = ?
+TelegramUserModel.associateWithForumUser = UPDATE jforum_telegram_users SET forum_user_id = ? WHERE user_id = ?
+TelegramUserModel.update = UPDATE jforum_telegram_users SET chat_id = ?, \
+    forum_user_id = ?, \
+    username = ?, \
+    first_name = ?, \
+    last_name = ?, \
+    phone_number = ?, \
+    user_lastvisit = ? \
+    WHERE user_id = ?
+TelegramUserModel.selectByUserId = SELECT u.* \
+    FROM jforum_telegram_users u \
+    WHERE u.user_id = ?
+TelegramUserModel.addNew = INSERT INTO jforum_telegram_users (user_id, chat_id, username, first_name, last_name, phone_number, user_regdate) VALUES (?, ?, ?, ?, ?, ?, ?)
+TelegramUserModel.addNewWithId = INSERT INTO jforum_telegram_users (user_id, chat_id, username, first_name, last_name, phone_number, user_regdate, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)

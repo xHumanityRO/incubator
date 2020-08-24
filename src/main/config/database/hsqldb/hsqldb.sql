@@ -175,3 +175,6 @@ ModerationLog.selectAll = SELECT LIMIT ? ? l.*, u.username, u2.username AS poste
 	LEFT JOIN jforum_users u2 ON u2.user_id = l.post_user_id \
 	LEFT JOIN jforum_users u ON l.user_id = u.user_id \
 	ORDER BY log_id DESC 
+
+TelegramUserModel.lastGeneratedUserId = SELECT MAX(id) FROM jforum_telegram_users
+	
