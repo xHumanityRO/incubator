@@ -56,6 +56,7 @@ import net.jforum.dao.DataAccessDriver;
 import net.jforum.dao.UserDAO;
 import net.jforum.entities.User;
 import net.jforum.exceptions.APIException;
+import net.jforum.util.Hash;
 import net.jforum.util.I18n;
 import net.jforum.util.preferences.ConfigKeys;
 import net.jforum.util.preferences.SystemGlobals;
@@ -122,7 +123,8 @@ public class UserREST extends Command
 			final User user = new User();
 			user.setUsername(username);
 			user.setEmail(email);
-			user.setPassword(password);
+			//user.setPassword(password);
+			user.setPassword(Hash.sha512(password+SystemGlobals.getValue(ConfigKeys.USER_HASH_SEQUENCE)));
 			
 			final int userId = dao.addNew(user);
 			
