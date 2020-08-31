@@ -54,6 +54,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import net.jforum.JForumExecutionContext;
+import net.jforum.PooledConnection;
 import net.jforum.dao.DataAccessDriver;
 import net.jforum.dao.UserDAO;
 import net.jforum.entities.Group;
@@ -179,6 +180,51 @@ public class GenericUserDAO extends AutoKeys implements UserDAO
 		}
 	}
 
+	@Override 
+	public User findById(int userId)	{
+		String q = SystemGlobals.getSql("UserModel.selectById");
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			pstmt = PooledConnection.getImplementation().getConnection().prepareStatement(q);
+			pstmt.setInt(1, userId);
+
+			rs = pstmt.executeQuery();
+			User user = new User();
+
+			if (rs.next()) {
+				this.fillUserFromResultSet(user, rs);
+				user.setPrivateMessagesCount(rs.getInt("private_messages"));
+
+				rs.close();
+				pstmt.close();
+
+				// User groups
+				pstmt = PooledConnection.getImplementation().getConnection().prepareStatement(
+						SystemGlobals.getSql("UserModel.selectGroups"));
+				pstmt.setInt(1, userId);
+
+				rs = pstmt.executeQuery();
+				while (rs.next()) {
+					Group g = new Group();
+					g.setName(rs.getString("group_name"));
+					g.setId(rs.getInt("group_id"));
+
+					user.getGroupsList().add(g);
+				}
+			}
+
+			return user;
+		}
+		catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		finally {
+			DbUtils.close(rs, pstmt);
+		}
+	}
+	
 	@Override public User selectByName(String username)
 	{
 		PreparedStatement pstmt = null;

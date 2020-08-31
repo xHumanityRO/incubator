@@ -66,6 +66,8 @@ public interface UserDAO
 	 */
 	User selectById(int userId) ;
 	
+	User findById(int userId);
+	
 	/**
 	 * Gets a specific <code>User</code>.
 	 * 
@@ -410,4 +412,5 @@ public interface UserDAO
 	 * @return ArrayList of pending activation users
 	 */
 	List<User> pendingActivations() ;
+
 }

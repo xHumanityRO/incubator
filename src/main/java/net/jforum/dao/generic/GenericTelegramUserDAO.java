@@ -9,6 +9,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import net.jforum.JForumExecutionContext;
+import net.jforum.PooledConnection;
 import net.jforum.dao.TelegramUserDAO;
 import net.jforum.entities.TelegramUser;
 import net.jforum.exceptions.DatabaseException;
@@ -26,7 +27,8 @@ public class GenericTelegramUserDAO extends AutoKeys implements TelegramUserDAO 
 		ResultSet rs = null;
 
 		try {
-			pstmt = JForumExecutionContext.getConnection().prepareStatement(q);
+			//pstmt = JForumExecutionContext.getConnection().prepareStatement(q);
+			pstmt = PooledConnection.getImplementation().getConnection().prepareStatement(q);
 			pstmt.setLong(1, userId);
 
 			rs = pstmt.executeQuery();
