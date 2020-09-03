@@ -1,5 +1,6 @@
 package net.jforum.bot;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -47,16 +49,24 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 	private static final Logger LOGGER = Logger.getLogger(XHumanityTelegramBot.class);
 
 	private static final String BOT_NAME = "xHumanityBot";
-	private static final String TOKEN = "1176331978:AAFWKL0u5xWXuWxEUnkoewEiDdl1Ub9g2ns";
 	private static final int PROMO_FORUM_ID = 1;
-	private static final String FORUM_API_KEY = "klsdfhjweweisxknaskl";
 	private static final String FORUM_PROTOCOL = "http";
 	private static final String FORUM_HOST = "192.168.0.219";
 	private static final int FORUM_PORT = 8080;
 	private static final String USERNAME_PREFIX = "xH";
 	private static final String EMAIL_DOMAIN = "xhumanity.org";
+	private static final String TELEGRAM_TOKEN_PROP_KEY = "telegram.token";
+	private static final String FORUM_API_PROP_KEY = "forum.api.key";
+
+	private Properties integrationProp = new Properties();
 
 	private final TelegramUserDAO telegramUserDao = DataAccessDriver.getInstance().newTelegramUserDAO();
+
+	public XHumanityTelegramBot() {
+		String appPath = SystemGlobals.getValue(ConfigKeys.APPLICATION_PATH);
+		String integrationFile = appPath + "/WEB-INF/config/integration.properties";
+		XUtils.loadProps(integrationProp, new File(integrationFile));
+	}
 
 	@Override
 	public void onUpdateReceived(Update update) {
@@ -117,9 +127,10 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 
 	private void processStart(Update update, long chatId, String messageText) {
 		String answer = "Salut xHumanicus! Deocamdata nu stiu sa fac mare lucru, dar in curand ma voi inzestra cu capacitati noi. "
-				+ "To register on our Forum click /forum_sign_up\n" + "By cicking on it you agree with our Terms and Conditions below\n\n"
-				+ "While the administrators and moderators of this forum will attempt to remove or edit any generally objectionable material as quickly as possible, it is impossible to review every message. Therefore you acknowledge that all posts made to these forums express the views and opinions of the author and not the administrators, moderators or webmaster (except for posts by these people) and hence will not be held liable.\n\n" 
-				+ "You agree not to post any abusive, obscene, vulgar, slanderous, hateful, threatening, sexually-oriented or any other material that may violate any applicable laws. Doing so may lead to you being immediately and permanently banned (and your service provider being informed). The IP address of all posts is recorded to aid in enforcing these conditions. You agree that the webmaster, administrator and moderators of this forum have the right to remove, edit, move or close any topic at any time should they see fit. As a user you agree to any information you have entered above being stored in a database. While this information will not be disclosed to any third party without your consent the webmaster, administrator and moderators cannot be held responsible for any hacking attempt that may lead to the data being compromised.\n\n" 
+				+ "To register on our Forum click /forum_sign_up\n"
+				+ "By cicking on it you agree with our Terms and Conditions below\n\n"
+				+ "While the administrators and moderators of this forum will attempt to remove or edit any generally objectionable material as quickly as possible, it is impossible to review every message. Therefore you acknowledge that all posts made to these forums express the views and opinions of the author and not the administrators, moderators or webmaster (except for posts by these people) and hence will not be held liable.\n\n"
+				+ "You agree not to post any abusive, obscene, vulgar, slanderous, hateful, threatening, sexually-oriented or any other material that may violate any applicable laws. Doing so may lead to you being immediately and permanently banned (and your service provider being informed). The IP address of all posts is recorded to aid in enforcing these conditions. You agree that the webmaster, administrator and moderators of this forum have the right to remove, edit, move or close any topic at any time should they see fit. As a user you agree to any information you have entered above being stored in a database. While this information will not be disclosed to any third party without your consent the webmaster, administrator and moderators cannot be held responsible for any hacking attempt that may lead to the data being compromised.\n\n"
 				+ "This forum system uses cookies to store information on your local computer. These cookies do not contain any of the information you have entered above; they serve only to improve your viewing pleasure. The e-mail address is used only for confirming your registration details and password (and for sending new passwords should you forget your current one).";
 		SendMessage message = new SendMessage().setChatId(chatId).setText(answer).setParseMode(ParseMode.HTML);
 		try {
@@ -132,7 +143,9 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 
 	private void createForumAccount(Update update, TelegramUser telegramUser, long chatId, String messageText) {
 		String username = Long.toString(telegramUser.getChatId());
-		String email = telegramUser.getChatId() + "@" + EMAIL_DOMAIN; //telegramUser.getFirstName() + "." + telegramUser.getLastName() + "@xhumanity.org";
+		String email = telegramUser.getChatId() + "@" + EMAIL_DOMAIN; // telegramUser.getFirstName() + "." +
+																		// telegramUser.getLastName() +
+																		// "@xhumanity.org";
 		String password = generatePassword();
 
 		String answer = "Account created.";
@@ -141,8 +154,8 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 			User user = insertForumUser(username, email, password, chatId);
 			telegramUser.setForumUserId(user.getId());
 			telegramUserDao.update(telegramUser);
-			answer += " Username: " + user.getUsername() + ", Pass: " + password + "\n"
-					+ "To login go to " + FORUM_PROTOCOL + "://" + FORUM_HOST + ":" + FORUM_PORT + "/jforum/user/login.page\n\n"
+			answer += " Username: " + user.getUsername() + ", Pass: " + password + "\n" + "To login go to "
+					+ FORUM_PROTOCOL + "://" + FORUM_HOST + ":" + FORUM_PORT + "/jforum/user/login.page\n\n"
 					+ "Now you can send us links to your promotional videos. Just post the link here and we'll do the rest for you\n\n"
 					+ "For a better experience within our comunity /share_phone_number with us\n"
 					+ "Additionaly to register your email with your forum account click /share_email_address (will be used in case you want to reset the password)";
@@ -280,11 +293,11 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 			} catch (GeneralSecurityException | IOException e) {
 				LOGGER.error(e);
 			}
-	
+
 			try {
 				final UserDAO dao = DataAccessDriver.getInstance().newUserDAO();
 				User forumUser = dao.findById(telegramUser.getForumUserId());
-				
+
 				String postLink = createPost(forumUser, telegramUser.getFirstName(), videoUrl);
 				answer += " " + postLink;
 				LOGGER.info(postLink);
@@ -305,11 +318,10 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 	public String createPost(User user, String firstName, String url) throws Exception {
 		int forumId = PROMO_FORUM_ID;
 		final String subject = firstName + "'s promotional video";
-		final String message = "This is my video. Waiting for your reaction!\n[youtube]" +url + "[/youtube]";
+		final String message = "This is my video. Waiting for your reaction!\n[youtube]" + url + "[/youtube]";
 
-		URI uri = new URI(FORUM_PROTOCOL, null,
-			    FORUM_HOST, FORUM_PORT,
-			    "/jforum/postApi/insert/" + FORUM_API_KEY + "/" + user.getEmail() + "/" + forumId + ".page", 
+		URI uri = new URI(FORUM_PROTOCOL, null, FORUM_HOST, FORUM_PORT,
+			    "/jforum/postApi/insert/" + integrationProp.getProperty(FORUM_API_PROP_KEY) + "/" + user.getEmail() + "/" + forumId + ".page", 
 			    null,
 			    null);
 		String postLink = "Error creating automated post"; 
@@ -363,7 +375,7 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 
 	@Override
 	public String getBotToken() {
-		return TOKEN;
+		return integrationProp.getProperty(TELEGRAM_TOKEN_PROP_KEY);
 	}
 
 	private String generatePassword() {
