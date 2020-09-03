@@ -91,7 +91,7 @@ public class GenericTelegramUserDAO extends AutoKeys implements TelegramUserDAO 
 	public void associateWithForumUser(long userId, int forumUserId) {
 		PreparedStatement pstmt = null;
 		try {
-			pstmt = JForumExecutionContext.getConnection()
+			pstmt = PooledConnection.getImplementation().getConnection()
 					.prepareStatement(SystemGlobals.getSql("TelegramUserModel.associateWithForumUser"));
 			pstmt.setInt(1, forumUserId);
 			pstmt.setLong(2, userId);
@@ -113,7 +113,7 @@ public class GenericTelegramUserDAO extends AutoKeys implements TelegramUserDAO 
 	public void update(TelegramUser user) {
 		PreparedStatement pstmt = null;
 		try {
-			pstmt = JForumExecutionContext.getConnection()
+			pstmt = PooledConnection.getImplementation().getConnection()
 					.prepareStatement(SystemGlobals.getSql("TelegramUserModel.update"));
 
 			pstmt.setLong(1, user.getChatId());

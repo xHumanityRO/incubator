@@ -18,11 +18,11 @@
 					<a href="${JForumContext.encodeURL("/posts/quote/${start}/${post.id}")}" rel="nofollow" class="icon_quote"><img src="${contextPath}/images/transp.gif" alt="" /></a>
 				</#if>
 				<#if topic.status != STATUS_LOCKED && !readonly && topic.type != TOPIC_WIKI>
-					<a href="${JForumContext.encodeURL("/${moduleName}/like/${start}/${post.id}")}" id="like${post.id}"><img src="${contextPath}/templates/${templateName}/images/like.png" alt="[Like]" /></a>${post.reputation.totalLikes}  
+					<img src="${contextPath}/templates/${templateName}/images/like.png" alt="[Like]" />${post.reputation.totalLikes}  
 				</#if>
 
 				<#if topic.status != STATUS_LOCKED && !readonly && topic.type != TOPIC_WIKI>
-					<a href="${JForumContext.encodeURL("/${moduleName}/dislike/${start}/${post.id}")}" id="dislike${post.id}"><img src="${contextPath}/templates/${templateName}/images/dislike.png" alt="[Dislike]" /></a>${post.reputation.totalDislikes}  
+					<img src="${contextPath}/templates/${templateName}/images/dislike.png" alt="[Dislike]" />${post.reputation.totalDislikes}  
 				</#if>
 
 				<#if canEditCurrentMessage>

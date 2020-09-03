@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Contact;
@@ -52,6 +53,8 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 	private static final String FORUM_PROTOCOL = "http";
 	private static final String FORUM_HOST = "192.168.0.219";
 	private static final int FORUM_PORT = 8080;
+	private static final String USERNAME_PREFIX = "xH";
+	private static final String EMAIL_DOMAIN = "xhumanity.org";
 
 	private final TelegramUserDAO telegramUserDao = DataAccessDriver.getInstance().newTelegramUserDAO();
 
@@ -68,12 +71,16 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 
 				if (messageText.equals("/start")) {
 					processStart(update, chatId, messageText);
-				} else if (messageText.equals("/share_phone_number")) {
-					displayShareNumberOption(update, chatId, messageText);
 				} else if (messageText.equals("/forum_sign_up")) {
 					createForumAccount(update, telegramUser, chatId, messageText);
+				} else if (messageText.equals("/share_phone_number")) {
+					displayShareNumberOption(update, chatId, messageText);
+				} else if (messageText.equals("/share_email_address")) {
+					displayShareEmailText(update, chatId, messageText);
 				} else if (YoutubeUtils.isYoutubeLink(messageText)) {
 					processYoutubeLink(update, telegramUser, chatId, messageText);
+				} else if (XUtils.isEmailValid(messageText)) {
+					processEmailAddress(update, telegramUser, chatId, messageText);
 				} else {
 					// Unknown command
 					String answer = "Unknown command";
@@ -110,79 +117,41 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 
 	private void processStart(Update update, long chatId, String messageText) {
 		String answer = "Salut xHumanicus! Deocamdata nu stiu sa fac mare lucru, dar in curand ma voi inzestra cu capacitati noi. "
-				+ "Apasa /share_phone_number pentru a incepe procedura de inregistrare pe forum";
-		SendMessage message = new SendMessage().setChatId(chatId).setText(answer);
+				+ "To register on our Forum click /forum_sign_up\n" + "By cicking on it you agree with our Terms and Conditions below\n\n"
+				+ "While the administrators and moderators of this forum will attempt to remove or edit any generally objectionable material as quickly as possible, it is impossible to review every message. Therefore you acknowledge that all posts made to these forums express the views and opinions of the author and not the administrators, moderators or webmaster (except for posts by these people) and hence will not be held liable.\n\n" 
+				+ "You agree not to post any abusive, obscene, vulgar, slanderous, hateful, threatening, sexually-oriented or any other material that may violate any applicable laws. Doing so may lead to you being immediately and permanently banned (and your service provider being informed). The IP address of all posts is recorded to aid in enforcing these conditions. You agree that the webmaster, administrator and moderators of this forum have the right to remove, edit, move or close any topic at any time should they see fit. As a user you agree to any information you have entered above being stored in a database. While this information will not be disclosed to any third party without your consent the webmaster, administrator and moderators cannot be held responsible for any hacking attempt that may lead to the data being compromised.\n\n" 
+				+ "This forum system uses cookies to store information on your local computer. These cookies do not contain any of the information you have entered above; they serve only to improve your viewing pleasure. The e-mail address is used only for confirming your registration details and password (and for sending new passwords should you forget your current one).";
+		SendMessage message = new SendMessage().setChatId(chatId).setText(answer).setParseMode(ParseMode.HTML);
 		try {
 			execute(message);
 			logReceivedMessage(update.getMessage().getChat(), messageText, answer);
 		} catch (TelegramApiException e) {
 			LOGGER.error(e);
 		}
-	}
-
-	private void displayShareNumberOption(Update update, long chatId, String messageText) {
-		String answer = "Please share your phone number to create an account on our Forum.";
-		SendMessage message = new SendMessage().setChatId(chatId).setText(answer);
-		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-		List<KeyboardRow> keyboard = new ArrayList<>();
-		KeyboardRow row = new KeyboardRow();
-		KeyboardButton requestContact = new KeyboardButton("Send my phone number");
-		requestContact.setRequestContact(true);
-		row.add(requestContact);
-		keyboard.add(row);
-		keyboardMarkup.setKeyboard(keyboard);
-		keyboardMarkup.setResizeKeyboard(true);
-		message.setReplyMarkup(keyboardMarkup);
-		try {
-			execute(message);
-			logReceivedMessage(update.getMessage().getChat(), messageText, answer);
-		} catch (TelegramApiException e) {
-			LOGGER.error(e);
-		}
-	}
-
-	private void processContact(Update update, TelegramUser telegramUser) {
-		long chatId = update.getMessage().getChatId();
-		String messageText = update.getMessage().getText();
-
-		Contact contact = update.getMessage().getContact();
-		logReceivedContact(contact);
-		telegramUser.setPhoneNumber(contact.getPhoneNumber());
-		telegramUserDao.update(telegramUser);
-
-		String answer = "To register on our Forum click /forum_sign_up\n" + "By cicking on it you agree with our /T&C";
-		SendMessage message = new SendMessage().setChatId(chatId).setText(answer);
-		message.setReplyMarkup(new ReplyKeyboardRemove());
-		try {
-			execute(message);
-			logReceivedMessage(update.getMessage().getChat(), messageText, answer);
-		} catch (TelegramApiException e) {
-			LOGGER.error(e);
-		}
-		
-		
 	}
 
 	private void createForumAccount(Update update, TelegramUser telegramUser, long chatId, String messageText) {
-		String username = telegramUser.getPhoneNumber();
-		String email = telegramUser.getPhoneNumber() + "@xhumanity.org"; //telegramUser.getFirstName() + "." + telegramUser.getLastName() + "@xhumanity.org";
+		String username = Long.toString(telegramUser.getChatId());
+		String email = telegramUser.getChatId() + "@" + EMAIL_DOMAIN; //telegramUser.getFirstName() + "." + telegramUser.getLastName() + "@xhumanity.org";
 		String password = generatePassword();
 
-		String answer = "Account created. Username: " + username + ", Pass: " + password + "\n"
-				+ "To login go to " + FORUM_PROTOCOL + "://" + FORUM_HOST + ":" + FORUM_PORT + "/jforum/user/login.page";
+		String answer = "Account created.";
 
 		try {
-			int userId = insertForumUser(username, email, password, chatId);
-			telegramUser.setForumUserId(userId);
+			User user = insertForumUser(username, email, password, chatId);
+			telegramUser.setForumUserId(user.getId());
 			telegramUserDao.update(telegramUser);
+			answer += " Username: " + user.getUsername() + ", Pass: " + password + "\n"
+					+ "To login go to " + FORUM_PROTOCOL + "://" + FORUM_HOST + ":" + FORUM_PORT + "/jforum/user/login.page\n\n"
+					+ "Now you can send us links to your promotional videos. Just post the link here and we'll do the rest for you\n\n"
+					+ "For a better experience within our comunity /share_phone_number with us\n"
+					+ "Additionaly to register your email with your forum account click /share_email_address (will be used in case you want to reset the password)";
 		} catch (Exception e) {
 			LOGGER.error(e);
 			answer = e.getMessage();
 		}
 
 		SendMessage msg = new SendMessage().setChatId(chatId).setText(answer);
-		ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
-		msg.setReplyMarkup(keyboardMarkup);
 		try {
 			execute(msg);
 			logReceivedMessage(update.getMessage().getChat(), messageText, answer);
@@ -195,8 +164,9 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 	 * Creates a new forum user. Required parameters are "username", "email" and
 	 * "password".
 	 */
-	public int insertForumUser(String username, String email, String password, Long chatId) {
+	public User insertForumUser(String username, String email, String password, Long chatId) {
 		int userId = 0;
+		final User user = new User();
 		try {
 
 			if (username.length() > SystemGlobals.getIntValue(ConfigKeys.USERNAME_MAX_LENGTH)) {
@@ -217,12 +187,12 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 				throw new APIException("Email already used: " + email);
 			}
 
-			final User user = new User();
 			user.setUsername(username);
 			user.setEmail(email);
 			user.setPassword(Hash.sha512(password + SystemGlobals.getValue(ConfigKeys.USER_HASH_SEQUENCE)));
 
 			userId = dao.addNew(user);
+			updateUsernameAndEmail(userId, user);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw e;
@@ -234,13 +204,73 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 			}
 		}
 
-		return userId;
+		return user;
+	}
+
+	private void updateUsernameAndEmail(int userId, final User user) {
+		user.setId(userId);
+		String newUsername = USERNAME_PREFIX + String.format("%05d", userId);
+		String newEmail = newUsername + "@" + EMAIL_DOMAIN;
+		user.setEmail(newEmail);
+		user.setUsername(newUsername);
+	}
+
+	private void displayShareNumberOption(Update update, long chatId, String messageText) {
+		String answer = "To share your phone number click on the button bellow";
+		SendMessage message = new SendMessage().setChatId(chatId).setText(answer);
+		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+		List<KeyboardRow> keyboard = new ArrayList<>();
+		KeyboardRow row = new KeyboardRow();
+		KeyboardButton requestContact = new KeyboardButton("Send my phone number");
+		requestContact.setRequestContact(true);
+		row.add(requestContact);
+		keyboard.add(row);
+		keyboardMarkup.setKeyboard(keyboard);
+		keyboardMarkup.setResizeKeyboard(true);
+		message.setReplyMarkup(keyboardMarkup);
+		try {
+			execute(message);
+			logReceivedMessage(update.getMessage().getChat(), messageText, answer);
+		} catch (TelegramApiException e) {
+			LOGGER.error(e);
+		}
+	}
+
+	private void displayShareEmailText(Update update, long chatId, String messageText) {
+		String answer = "Enter your email address";
+		SendMessage message = new SendMessage().setChatId(chatId).setText(answer);
+		try {
+			execute(message);
+			logReceivedMessage(update.getMessage().getChat(), messageText, answer);
+		} catch (TelegramApiException e) {
+			LOGGER.error(e);
+		}
+	}
+
+	private void processContact(Update update, TelegramUser telegramUser) {
+		long chatId = update.getMessage().getChatId();
+		String messageText = update.getMessage().getText();
+
+		Contact contact = update.getMessage().getContact();
+		logReceivedContact(contact);
+		telegramUser.setPhoneNumber(contact.getPhoneNumber());
+		telegramUserDao.update(telegramUser);
+
+		String answer = "Your phone number was added to your profile";
+		SendMessage message = new SendMessage().setChatId(chatId).setText(answer).setParseMode(ParseMode.MARKDOWN);
+		message.setReplyMarkup(new ReplyKeyboardRemove());
+		try {
+			execute(message);
+			logReceivedMessage(update.getMessage().getChat(), messageText, answer);
+		} catch (TelegramApiException e) {
+			LOGGER.error(e);
+		}
 	}
 
 	private void processYoutubeLink(Update update, TelegramUser telegramUser, long chatId, String videoUrl) {
 		String answer = "Your clip was taken into account. You can visit our forum to see the status.";
 		if (telegramUser.getForumUserId() == 0) {
-			answer = "We cannot take into account your link. You need to create before an account on our forum /share_phone_number";
+			answer = "We cannot take into account your link. You need to create before an account on our forum /forum_sign_up";
 		} else {
 			String videoId = YoutubeUtils.getVideoIdFromYoutubeUrl(videoUrl);
 			LOGGER.info("videoId = " + videoId);
@@ -291,6 +321,39 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 			throw e;
 		}
 		return postLink;
+	}
+
+	private void processEmailAddress(Update update, TelegramUser telegramUser, long chatId, String email) {
+		String answer = "Your email address was associated with your forum account.";
+		if (telegramUser.getForumUserId() == 0) {
+			answer = "We cannot link this email to your forum account. To create an account click on /forum_sign_up";
+		} else {
+			LOGGER.info("registering email address = " + email);
+	
+			try {
+				final UserDAO dao = DataAccessDriver.getInstance().newUserDAO();
+				User forumUser = dao.findById(telegramUser.getForumUserId());
+				forumUser.setEmail(email);
+				dao.update(forumUser);
+			} catch (Exception e) {
+				LOGGER.error(e);
+				answer = "Error occurred while processing your email address";
+			} finally {
+				try {
+					JForumExecutionContext.getConnection().commit();
+				} catch (SQLException e) {
+					throw new DatabaseException(e);
+				}
+			}
+
+		}
+		try {
+			SendMessage message = new SendMessage().setChatId(chatId).setText(answer);
+			execute(message);
+		} catch (TelegramApiException e) {
+			LOGGER.error(e);
+		}
+		logReceivedMessage(update.getMessage().getChat(), email, answer);
 	}
 
 	@Override
