@@ -19,7 +19,30 @@
 		<url>https://sourceforge.net/p/jforum2/code/HEAD/tree/</url>
 	</scm>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>https://repo.maven.apache.org/maven2</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
 	<repositories>
+		<repository>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>https://repo.maven.apache.org/maven2</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 		<repository>
 			<id>jboss</id>
 			<name>jboss public</name>
@@ -301,12 +324,12 @@
 			<artifactId>google-api-services-youtube</artifactId>
 			<version>v3-rev20200618-1.30.9</version>
 		</dependency>
-        <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client-jetty</artifactId>
-            <version>1.20.0</version>
-        </dependency>
-		
+		<dependency>
+			<groupId>com.google.oauth-client</groupId>
+			<artifactId>google-oauth-client-jetty</artifactId>
+			<version>1.20.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -430,8 +453,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<lucene.version>8.5.2</lucene.version>
-		<!--
-		<maven.test.skip.exec>true</maven.test.skip.exec>
-		-->
+		<!-- <maven.test.skip.exec>true</maven.test.skip.exec> -->
 	</properties>
 </project>
