@@ -312,8 +312,6 @@ CREATE TABLE jforum_users (
   user_authhash VARCHAR(32),
   user_twitter VARCHAR(50) DEFAULT NULL,
   fb_access_token VARCHAR(255) DEFAULT NULL,
-  fb_refresh_token VARCHAR(255) DEFAULT NULL,
-  fb_token_expire BIGINT DEFAULT 0,
   PRIMARY KEY (user_id)
 ) ENGINE=InnoDB;
 
