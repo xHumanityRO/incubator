@@ -177,10 +177,11 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 	/**
 	 * Creates a new forum user. Required parameters are "username", "email" and
 	 * "password".
+	 * @throws Exception 
 	 */
-	public User insertForumUser(String username, String email, String password, Long chatId) {
+	public User insertForumUser(String username, String email, String password, Long chatId) throws Exception {
 		int userId = 0;
-		final User user = new User();
+		User user = new User();
 		try {
 
 			if (username.length() > SystemGlobals.getIntValue(ConfigKeys.USERNAME_MAX_LENGTH)) {
@@ -206,9 +207,10 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 			user.setPassword(Hash.sha512(password + SystemGlobals.getValue(ConfigKeys.USER_HASH_SEQUENCE)));
 
 			userId = dao.addNew(user);
-			User forumUser = dao.findById(userId);
-			updateUsernameAndEmail(userId, forumUser);
-			dao.update(forumUser);
+			JForumExecutionContext.getConnection().commit();
+			user = dao.findById(userId);
+			updateUsernameAndEmail(userId, user);
+			dao.update(user);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw e;
