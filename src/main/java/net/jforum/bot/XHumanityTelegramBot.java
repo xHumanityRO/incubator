@@ -50,7 +50,7 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 
 	private static final String BOT_NAME = "xHumanityBot";
 	private static final int PROMO_FORUM_ID = 1;
-	private static final String FORUM_PROTOCOL = "http";
+	private static final String FORUM_PROTOCOL = "https";
 	private static final String FORUM_HOST_KEY = "forum.host";
 	private static final int FORUM_PORT = 8443;
 	private static final String USERNAME_PREFIX = "xH";
