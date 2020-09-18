@@ -51,8 +51,10 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 	private static final String BOT_NAME = "xHumanityBot";
 	private static final int PROMO_FORUM_ID = 1;
 	private static final String FORUM_PROTOCOL = "https";
+	private static final String FORUM_INTERNAL_PROTOCOL = "http";
 	private static final String FORUM_HOST_KEY = "forum.host";
 	private static final int FORUM_PORT = 8443;
+	private static final int FORUM_INTERNAL_PORT = 8080;
 	private static final String USERNAME_PREFIX = "xH";
 	private static final String EMAIL_DOMAIN = "xhumanity.org";
 	private static final String TELEGRAM_TOKEN_PROP_KEY = "telegram.token";
@@ -325,7 +327,7 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 		final String subject = firstName + "'s promotional video";
 		final String message = "This is my video. Waiting for your reaction!\n[youtube]" + url + "[/youtube]";
 
-		URI uri = new URI(FORUM_PROTOCOL, null, integrationProp.getProperty(FORUM_HOST_KEY), FORUM_PORT,
+		URI uri = new URI(FORUM_INTERNAL_PROTOCOL, null, integrationProp.getProperty(FORUM_HOST_KEY), FORUM_INTERNAL_PORT,
 			    "/jforum/postApi/insert/" + integrationProp.getProperty(FORUM_API_PROP_KEY) + "/" + user.getEmail() + "/" + forumId + ".page", 
 			    null,
 			    null);
