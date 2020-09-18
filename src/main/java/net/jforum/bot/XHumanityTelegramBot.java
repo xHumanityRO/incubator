@@ -206,8 +206,9 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 			user.setPassword(Hash.sha512(password + SystemGlobals.getValue(ConfigKeys.USER_HASH_SEQUENCE)));
 
 			userId = dao.addNew(user);
-			updateUsernameAndEmail(userId, user);
-			dao.update(user);
+			User forumUser = dao.findById(userId);
+			updateUsernameAndEmail(userId, forumUser);
+			dao.update(forumUser);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw e;
