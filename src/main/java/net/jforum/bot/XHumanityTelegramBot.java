@@ -207,6 +207,7 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 
 			userId = dao.addNew(user);
 			updateUsernameAndEmail(userId, user);
+			dao.update(user);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw e;
