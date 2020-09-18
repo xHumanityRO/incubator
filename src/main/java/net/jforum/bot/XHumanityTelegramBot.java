@@ -51,8 +51,8 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 	private static final String BOT_NAME = "xHumanityBot";
 	private static final int PROMO_FORUM_ID = 1;
 	private static final String FORUM_PROTOCOL = "http";
-	private static final String FORUM_HOST = "192.168.0.219";
-	private static final int FORUM_PORT = 8080;
+	private static final String FORUM_HOST_KEY = "forum.host";
+	private static final int FORUM_PORT = 8443;
 	private static final String USERNAME_PREFIX = "xH";
 	private static final String EMAIL_DOMAIN = "xhumanity.org";
 	private static final String TELEGRAM_TOKEN_PROP_KEY = "telegram.token";
@@ -131,7 +131,8 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 				+ "By cicking on it you agree with our Terms and Conditions below\n\n"
 				+ "While the administrators and moderators of this forum will attempt to remove or edit any generally objectionable material as quickly as possible, it is impossible to review every message. Therefore you acknowledge that all posts made to these forums express the views and opinions of the author and not the administrators, moderators or webmaster (except for posts by these people) and hence will not be held liable.\n\n"
 				+ "You agree not to post any abusive, obscene, vulgar, slanderous, hateful, threatening, sexually-oriented or any other material that may violate any applicable laws. Doing so may lead to you being immediately and permanently banned (and your service provider being informed). The IP address of all posts is recorded to aid in enforcing these conditions. You agree that the webmaster, administrator and moderators of this forum have the right to remove, edit, move or close any topic at any time should they see fit. As a user you agree to any information you have entered above being stored in a database. While this information will not be disclosed to any third party without your consent the webmaster, administrator and moderators cannot be held responsible for any hacking attempt that may lead to the data being compromised.\n\n"
-				+ "This forum system uses cookies to store information on your local computer. These cookies do not contain any of the information you have entered above; they serve only to improve your viewing pleasure. The e-mail address is used only for confirming your registration details and password (and for sending new passwords should you forget your current one).";
+				+ "This forum system uses cookies to store information on your local computer. These cookies do not contain any of the information you have entered above; they serve only to improve your viewing pleasure. The e-mail address is used only for confirming your registration details and password (and for sending new passwords should you forget your current one).\n\n"
+				+ "/forum_sign_up";
 		SendMessage message = new SendMessage().setChatId(chatId).setText(answer).setParseMode(ParseMode.HTML);
 		try {
 			execute(message);
@@ -155,7 +156,7 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 			telegramUser.setForumUserId(user.getId());
 			telegramUserDao.update(telegramUser);
 			answer += " Username: " + user.getUsername() + ", Pass: " + password + "\n" + "To login go to "
-					+ FORUM_PROTOCOL + "://" + FORUM_HOST + ":" + FORUM_PORT + "/jforum/user/login.page\n\n"
+					+ FORUM_PROTOCOL + "://" + integrationProp.getProperty(FORUM_HOST_KEY) + ":" + FORUM_PORT + "/jforum/user/login.page\n\n"
 					+ "Now you can send us links to your promotional videos. Just post the link here and we'll do the rest for you\n\n"
 					+ "For a better experience within our comunity /share_phone_number with us\n"
 					+ "Additionaly to register your email with your forum account click /share_email_address (will be used in case you want to reset the password)";
@@ -320,14 +321,14 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 		final String subject = firstName + "'s promotional video";
 		final String message = "This is my video. Waiting for your reaction!\n[youtube]" + url + "[/youtube]";
 
-		URI uri = new URI(FORUM_PROTOCOL, null, FORUM_HOST, FORUM_PORT,
+		URI uri = new URI(FORUM_PROTOCOL, null, integrationProp.getProperty(FORUM_HOST_KEY), FORUM_PORT,
 			    "/jforum/postApi/insert/" + integrationProp.getProperty(FORUM_API_PROP_KEY) + "/" + user.getEmail() + "/" + forumId + ".page", 
 			    null,
 			    null);
 		String postLink = "Error creating automated post"; 
 		try {
 			String response = HttpUtils.sendPOST(uri, subject, message);
-			postLink = FORUM_PROTOCOL + "://" + FORUM_HOST + ":" + FORUM_PORT + HttpUtils.extractPostPath(response);
+			postLink = FORUM_PROTOCOL + "://" + integrationProp.getProperty(FORUM_HOST_KEY) + ":" + FORUM_PORT + HttpUtils.extractPostPath(response);
 		} catch (IOException | URISyntaxException e) {
 			LOGGER.error(e);
 			throw e;
