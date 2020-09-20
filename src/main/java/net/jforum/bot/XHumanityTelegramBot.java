@@ -51,10 +51,10 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 	private static final String BOT_NAME = "xHumanityBot";
 	private static final int PROMO_FORUM_ID = 1;
 	private static final String FORUM_PROTOCOL = "https";
-	private static final String FORUM_INTERNAL_PROTOCOL = "http";
+	private static final String FORUM_INTERNAL_CALL_PROTOCOL = "http";
 	private static final String FORUM_HOST_KEY = "forum.host";
 	private static final int FORUM_PORT = 8443;
-	private static final int FORUM_INTERNAL_PORT = 8080;
+	private static final int FORUM_INTERNAL_CALL_PORT = 8080;
 	private static final String USERNAME_PREFIX = "xH";
 	private static final String EMAIL_DOMAIN = "xhumanity.org";
 	private static final String TELEGRAM_TOKEN_PROP_KEY = "telegram.token";
@@ -158,7 +158,7 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 			telegramUser.setForumUserId(user.getId());
 			telegramUserDao.update(telegramUser);
 			answer += " Username: " + user.getUsername() + ", Pass: " + password + "\n" + "To login go to "
-					+ FORUM_PROTOCOL + "://" + integrationProp.getProperty(FORUM_HOST_KEY) + ":" + FORUM_PORT + "/jforum/user/login.page\n\n"
+					+ FORUM_PROTOCOL + "://" + integrationProp.getProperty(FORUM_HOST_KEY) + ":" + FORUM_PORT + "/user/login.page\n\n"
 					+ "Now you can send us links to your promotional videos. Just post the link here and we'll do the rest for you\n\n"
 					+ "For a better experience within our comunity /share_phone_number with us\n"
 					+ "Additionaly to register your email with your forum account click /share_email_address (will be used in case you want to reset the password)";
@@ -327,13 +327,14 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 		final String subject = firstName + "'s promotional video";
 		final String message = "This is my video. Waiting for your reaction!\n[youtube]" + url + "[/youtube]";
 
-		URI uri = new URI(FORUM_INTERNAL_PROTOCOL, null, integrationProp.getProperty(FORUM_HOST_KEY), FORUM_INTERNAL_PORT,
-			    "/jforum/postApi/insert/" + integrationProp.getProperty(FORUM_API_PROP_KEY) + "/" + user.getEmail() + "/" + forumId + ".page", 
+		URI uri = new URI(FORUM_INTERNAL_CALL_PROTOCOL, null, integrationProp.getProperty(FORUM_HOST_KEY), FORUM_INTERNAL_CALL_PORT,
+			    "/postApi/insert/" + integrationProp.getProperty(FORUM_API_PROP_KEY) + "/" + user.getEmail() + "/" + forumId + ".page", 
 			    null,
 			    null);
 		String postLink = "Error creating automated post"; 
 		try {
 			String response = HttpUtils.sendPOST(uri, subject, message);
+			LOGGER.info("Posting through API response: " + response);
 			postLink = FORUM_PROTOCOL + "://" + integrationProp.getProperty(FORUM_HOST_KEY) + ":" + FORUM_PORT + HttpUtils.extractPostPath(response);
 		} catch (IOException | URISyntaxException e) {
 			LOGGER.error(e);
