@@ -53,7 +53,7 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 	private static final String FORUM_PROTOCOL = "https";
 	private static final String FORUM_INTERNAL_CALL_PROTOCOL = "http";
 	private static final String FORUM_HOST_KEY = "forum.host";
-	private static final int FORUM_PORT = 8443;
+	//private static final int FORUM_PORT = 8443;
 	private static final int FORUM_INTERNAL_CALL_PORT = 8080;
 	private static final String USERNAME_PREFIX = "xH";
 	private static final String EMAIL_DOMAIN = "xhumanity.org";
@@ -158,7 +158,7 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 			telegramUser.setForumUserId(user.getId());
 			telegramUserDao.update(telegramUser);
 			answer += " Username: " + user.getUsername() + ", Pass: " + password + "\n" + "To login go to "
-					+ FORUM_PROTOCOL + "://" + integrationProp.getProperty(FORUM_HOST_KEY) + ":" + FORUM_PORT + "/user/login.page\n\n"
+					+ FORUM_PROTOCOL + "://" + integrationProp.getProperty(FORUM_HOST_KEY) + "/user/login.page\n\n"
 					+ "Now you can send us links to your promotional videos. Just post the link here and we'll do the rest for you\n\n"
 					+ "For a better experience within our comunity /share_phone_number with us\n"
 					+ "Additionaly to register your email with your forum account click /share_email_address (will be used in case you want to reset the password)";
@@ -335,7 +335,7 @@ public class XHumanityTelegramBot extends TelegramLongPollingBot {
 		try {
 			String response = HttpUtils.sendPOST(uri, subject, message);
 			LOGGER.info("Posting through API response: " + response);
-			postLink = FORUM_PROTOCOL + "://" + integrationProp.getProperty(FORUM_HOST_KEY) + ":" + FORUM_PORT + HttpUtils.extractPostPath(response);
+			postLink = FORUM_PROTOCOL + "://" + integrationProp.getProperty(FORUM_HOST_KEY) + HttpUtils.extractPostPath(response);
 		} catch (IOException | URISyntaxException e) {
 			LOGGER.error(e);
 			throw e;
